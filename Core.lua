@@ -16,7 +16,7 @@ local options = {
 			desc = L["OPT_ANNOUNCE_DESC"],
 			get = "GetAnnounceType",
 			set = "SetAnnounceType",
-			validate = { "addon", "chat", "both", "none" },
+			validate = { "addon", "say", "party", "none" },
 		},
 		display = {
 			type = 'text',
@@ -42,7 +42,7 @@ QuestAnnouncer:RegisterChatCommand( {L["SLASHCMD_LONG"], L["SLASHCMD_SHORT"]}, o
 QuestAnnouncer:RegisterDB( "QuestAnnouncerDB", "QuestAnnouncerDBPC" )
 QuestAnnouncer:RegisterDefaults( "profile", {
 	showDebug = false,
-	announcet = "addon",
+	announcet = "say",
 	displayt = "both",
 	progresst = "last",
 } )
@@ -87,10 +87,13 @@ function QuestAnnouncer:UI_INFO_MESSAGE( message )
 		if self:IsShowDebug() then
 			self:Print(outmessage)
 		end
-		if (GetNumPartyMembers()>0) and (outmessage ~= nil) and ((self:GetAnnounceType() == "chat") or (self:GetAnnounceType() == "both")) then
+		if (GetNumPartyMembers()>0) and (outmessage ~= nil) and (self:GetAnnounceType() == "say") then
+			SendChatMessage(outmessage, "SAY")
+		end
+		if (GetNumPartyMembers()>0) and (outmessage ~= nil) and (self:GetAnnounceType() == "party") then
 			SendChatMessage(outmessage, "PARTY")
 		end
-		if (GetNumPartyMembers()>0) and (outmessage ~= nil) and ((self:GetAnnounceType() == "addon") or (self:GetAnnounceType() == "both")) then
+		if (GetNumPartyMembers()>0) and (outmessage ~= nil) and (self:GetAnnounceType() == "addon") then
 			SendAddonMessage(L["ADDON_PREFIX"], outmessage, "PARTY")
 		end
 	end
@@ -117,10 +120,10 @@ function QuestAnnouncer:SetAnnounceType(name)
 	self.db.profile.announcet = name
 	if name == "addon" then
 		self:Print(L["OPT_ANNOUNCE_ADDON"])
-	elseif name == "chat" then
+	elseif name == "say" then
+		self:Print(L["OPT_ANNOUNCE_SAY"])
+	elseif name == "party" then
 		self:Print(L["OPT_ANNOUNCE_CHAT"])
-	elseif name == "both" then
-		self:Print(L["OPT_ANNOUNCE_BOTH"])
 	elseif name == "none" then
 		self:Print(L["OPT_ANNOUNCE_NONE"])
 	end
